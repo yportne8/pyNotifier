@@ -1,40 +1,73 @@
 import ctypes
 
 
-def msg(title: str, message: str,
-            button: str="OK", icon: str=None,
-            ismodal=True):
-    buttons={
-        "OK":0x0,
-        "OKCXL":0x01,
-        "YESNOCXL":0x03,
-        "YESNO":0x04,
-        "HELP":0x4000}
-    button=buttons[button]
-    if icon:
-        icons={
-            "!":0x30, 
-            "?":0x40,
-            "<>":0x10}
-        icon=icons[icon]
-    if ismodal:
-        modal:4096
-    try:
-        ctypes.windll.user32.MessageBoxW(
-            0,message,title, button | icon | modal)
-    except:
+BUTTONS={
+    "ok": 0x0,
+    "yes_no": 0x04,
+    "ok_cancel": 0x01,
+    "retry_cancel": 0x05,
+    "yes_no_cancel": 0x03,
+    "about_retry_ignore": 0x02,
+    "cancel_tryagain_continue": 0x06}
+
+ICONS={
+    "!": 0x30, 
+    "?": 0x20,
+    "i": 0x40,
+    "<>": 0x10}
+
+FOCUSEDBUTTON={
+    0: 0x00,
+    1: 0x100,
+    2: 0x200}
+
+MODAL={
+
+}
+
+BEHAVIOR={
+    
+}
+
+RES={
+    1: "ok",
+    2: "cancel",
+    3: "abort",
+    4: "retry",
+    5: "ignore",
+    6: "yes",
+    7: "no",
+    10: "tryagain",
+    11: "continue"}
+
+
+def msg(message: str, title: str="",
+        button: str="ok", icon: str=None,
+        button_focus_idx: int=0):
+    if button_focus_idx > 2:
+        print("Options for focused button:")
+        print(FOCUSEDBUTTON)
+        return
+    if not icon:
         try:
-            ctypes.windll.user32.MessageBoxW(
-                0,message,title, button | icon)
+            res=ctypes.windll.user32.MessageBoxW(
+                    0,message,title,
+                    BUTTONS[button]
+                    |FOCUSEDBUTTON[button_focus_idx])
+            return RES[res]
         except:
-            try:
-                ctypes.windll.user32.MessageBoxW(
-                    0,message,title, button | modal)
-            except:
-                try:
-                    ctypes.windll.user32.MessageBoxW(
-                        0, message,title, button)
-            
-                except Exception as e:
-                    print("Failed:")
-                    print(str(e))
+            print("Options for buttons:")
+            print(BUTTONS.keys())
+            return
+    try:
+        res=ctypes.windll.user32.MessageBoxW(
+                0,message,title,
+                BUTTONS[button]
+                |ICONS[icon]
+                |FOCUSEDBUTTON[button_focus_idx]) 
+        return RES[res]
+    except:
+        print("Options for buttons:")
+        print(BUTTONS.keys())
+        print("Options for icons:")
+        print(ICONS.keys())
