@@ -103,10 +103,19 @@ class Messenger(Announcer):
 
 class Notifyer(Messenger):
     
-    def __init__(self, ico_path: os.PathLike):
+    def __init__(self, ico_path: os.PathLike=None):
         super().__init__()
-        self.ico = str(Path(ico_path))
-        print(self.ico)
+        if not ico_path:
+            ico_path = Path(Path.cwd(), "notifier.ico")
+        if not ico_path.exists():
+            msg = "Ico path does not exist.\n"
+            msg += "The notify function will not work without a .ico file\n"
+            msg += "assigned to self.ico. The announce and message functions\n"
+            msg += "are not impacted."
+            print(msg)
+            self.ico = None
+        else:
+            self.ico = str(Path(ico_path))
     
     def _notify(self, msg, title, duration):
         wc = WNDCLASS()
@@ -137,6 +146,10 @@ class Notifyer(Messenger):
         UnregisterClass(classAtom, hinst)
         
     def notify(self, msg, title, duration: int=3):
+        if not self.ico:
+            msg = ".notify() requires a .ico file assigned to self.ico"
+            print(msg)
+            return
         thrd = Thread(target=self._notify, args=(msg, title, duration,))
         thrd.start()
         time.sleep(duration)
