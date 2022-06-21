@@ -106,12 +106,14 @@ class Notifyer(Messenger):
     def __init__(self, ico_path: os.PathLike=None):
         super().__init__()
         if not ico_path:
-            ico_path = Path(Path.cwd(), "notifier.ico")
+            ico_path = Path(Path(__file__).parent, "notifier.ico")
+            print(ico_path)
         if not ico_path.exists():
-            msg = "Ico path does not exist.\n"
-            msg += "The notify function will not work without a .ico file\n"
-            msg += "assigned to self.ico. The announce and message functions\n"
+            msg = "Ico path does not exist....\n"
+            msg += "The notify function will not work without a .ico file "
+            msg += "assigned to self.ico. The announce and message functions "
             msg += "are not impacted."
+            print(ico_path)
             print(msg)
             self.ico = None
         else:
@@ -153,4 +155,4 @@ class Notifyer(Messenger):
         thrd = Thread(target=self._notify, args=(msg, title, duration,))
         thrd.start()
         time.sleep(duration)
-        thrd.join()  
+        thrd.join()
